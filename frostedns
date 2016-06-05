@@ -1,0 +1,162 @@
+#!/bin/bash
+#A Frosted script by The Frosted Monkey
+#DNS Tools --help for info
+#Contact greendaddy@thefrostedmonkeyclique.com for tips and help.
+#Enjoy!!!
+
+usage()
+{
+cat <<EOF
+Usage: $(basename $0) [options]
+
+This script is a wrapper around nslookup and whois.  These binaries
+are a requirement for the full script to function properly.  The 
+nslookup and whois binaries are available free in most linux
+repositories and are maintained by the open source community.
+
+Options:
+  --all-info 	Print out everything that this script can produce.
+  
+
+  -mx		Print out information regarding MX records.
+
+
+  -ns		Print out information regarding Nameserver records.
+
+
+  -whois	Print out whois information.
+
+  
+  -dns		Print out information regarding DNS zone files.
+
+
+  -a		Print out A records.
+
+
+  -soa		Print out SOA records.
+
+
+  --help	Help listing.
+EOF
+}
+
+while [ "$1" ]; do
+  case "$1" in
+	-dns)
+	  shift
+	  if ! [ -x "$(type -P nslookup)" ]; then
+		echo "ERROR: script requires nslookup"
+		exit 1
+	  fi
+	  dns="$(nslookup -type=any $1)"
+	  ;;
+	-mx)
+	  shift
+	  if ! [ -x "$(type -P nslookup)" ]; then
+		echo "ERROR: script requires nslookup"
+		exit 1
+	  fi
+	  host="$(nslookup -query=mx $1)"
+	  ;;
+	-ns)
+	  shift
+	  if ! [ -x "$(type -P nslookup)" ]; then
+		echo "ERROR: script requires nslookup"
+		exit 1
+	  fi
+	  ns="$(nslookup -type=ns $1)"
+	  ;;
+	-whois)
+	  shift
+	  if ! [ -x "$(type -P whois)" ]; then
+		echo "ERROR: script requires whois"
+		exit 1
+	  fi
+	  whois="$(whois $1)"
+	  ;;
+	-a)
+	  shift
+	  if ! [ -x "$(type -P nslookup)" ]; then
+		echo "ERROR: script requires nslookup"
+		exit 1
+	  fi
+	  a="$(nslookup $1)"
+	  ;;
+	-dns)
+	  shift
+	  if ! [ -x "$(type -P nslookup)" ]; then
+		echo "ERROR: script requires nslookup"
+		exit 1
+	  fi
+	  dns="$(nslookup -type=any $1)"
+	  ;;
+	-soa)
+	  shift
+	  if ! [ -x "$(type -P nslookup)" ]; then
+	  echo "ERROR: script requires nslookup"
+	  exit 1
+	  fi
+	  soa="$(nslookup -query=soa $1)"
+	  ;;
+	--all-info)
+	  shift
+	  if ! [ -x "$(type -P nslookup)" ]; then
+		echo "ERROR: script requires nslookup"
+		exit 1
+	  fi
+	  if ! [ -x "$(type -P whois)" ]; then
+		echo "ERROR: script requires whois"
+		exit 1
+	  fi
+	  host="$(nslookup -query=mx $1)"
+	  ns="$(nslookup -type=ns $1)"
+	  whois="$(whois $1)"
+	  a="$(nslookup $1)"
+	  dns="$(nslookup -type=any $1)"
+	  soa="$(nslookup -query=soa $1)"
+	  ;;
+	--help)
+	  usage
+	  exit 0
+	  ;;
+	*)
+	  echo "$(basename $0): invalid option $1">&2
+	  echo "see --help for usage"
+	  exit 1
+	  ;;
+  esac
+  shift
+done
+
+printf "\n\n\n\n\n"
+
+if [ ! -z "$a" ]; then
+  echo "======A Records========"
+  printf "\n%s\n\n\n\n\n\n" "$a"
+fi
+
+if [ ! -z "$ns" ]; then
+  echo "======NS Records======="
+  printf "\n%s\n\n\n\n\n\n" "$ns"
+fi
+
+if [ ! -z "$soa" ]; then
+  echo "=========SOA==========="
+  printf "\n%s\n\n\n\n\n\n" "$soa"
+fi
+
+if [ ! -z "$host" ]; then
+  echo "=======MX Records======"
+  printf "\n%s\n\n\n\n\n\n" "$host"
+fi
+
+if [ ! -z "$dns" ]; then
+  echo "=========DNS==========="
+  printf "\n%s\n\n\n\n\n\n" "$dns"
+fi
+
+if [ ! -z "$whois" ]; then
+  echo "=========WHOIS========="
+  printf "\n\n\n%s\n\n\n" "$whois"
+fi
+printf "\n\n"
