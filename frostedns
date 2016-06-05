@@ -40,6 +40,11 @@ Options:
 EOF
 }
 
+if [ $# -eq 0 ]; then
+  usage
+  exit
+fi
+
 while [ "$1" ]; do
   case "$1" in
 	-dns)
